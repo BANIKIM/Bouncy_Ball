@@ -26,7 +26,7 @@ public class InputControll : MonoBehaviour
         cameraControll.setPosition(x, y);
         
         //마우스 휠 버튼을 이용하여 카메라 이동
-        if(Input.GetMouseButton(2))
+        if(Input.GetMouseButtonDown(2))
         {
             CurrentMousePostion = previousMousePostion = Input.mousePosition;
         }
