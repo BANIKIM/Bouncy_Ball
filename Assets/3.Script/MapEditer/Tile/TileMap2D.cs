@@ -19,11 +19,16 @@ public class TileMap2D : MonoBehaviour
 
     public List<Tile> tileList { get; private set; }
 
+    private MapData mapdata;
+
+
+
     private void Awake()
     {
         input_Width.text = width.ToString();
         input_Height.text = height.ToString();
         tileList = new List<Tile>();
+        mapdata = new MapData();
 
     }
     //버튼 이벤트로 사용될 예정이라 퍼블릭으로 선언
@@ -46,6 +51,10 @@ public class TileMap2D : MonoBehaviour
             }
         }
 
+        mapdata.Mapsize.x = width;
+        mapdata.Mapsize.y = height;
+        mapdata.Mapdata = new int[tileList.Count];
+
     }
 
     private void SpawnTile(Tile_Type type, Vector3 position)
@@ -57,5 +66,26 @@ public class TileMap2D : MonoBehaviour
         tile.Setup(type);
 
         tileList.Add(tile);
+    }
+
+    public MapData GetMapData()
+    {
+        for (int i = 0; i < tileList.Count; i++)
+        {
+            if(tileList[i].Tiletype != Tile_Type.Player)//플레이어가 아니라면
+            {
+                mapdata.Mapdata[i] = (int)tileList[i].Tiletype;
+            }
+            else // 플레이어라면 
+            {
+                mapdata.Mapdata[i] = (int)Tile_Type.Empty;
+
+                int x = (int)tileList[i].transform.position.x;
+                int y = (int)tileList[i].transform.position.y;
+
+                mapdata.PlayerPosition = new Vector2Int(x, y);
+            }
+        }
+        return mapdata;
     }
 }
