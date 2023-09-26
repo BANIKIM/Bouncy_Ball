@@ -6,7 +6,17 @@ using UnityEngine.UI;
 
 public class TileMap2D : MonoBehaviour
 {
-    [Header("TilePrefabs")]
+    [Header("Game의 경우는 Check!")]
+    public bool isGame = false;
+
+    [Header("Game의 경우")]
+    [SerializeField] private GameObject Tile_Prefabs_G;
+    [SerializeField] private GameObject ItemPrefabs;
+
+
+    //-----------------------------------------------------------------------------------
+
+    [Header("MapEditer의 경우")]
     [SerializeField] private GameObject TilePrefabs;
 
     [Header("InputField")]
@@ -25,16 +35,18 @@ public class TileMap2D : MonoBehaviour
 
     private void Awake()
     {
+        if (isGame) return;
         input_Width.text = width.ToString();
         input_Height.text = height.ToString();
         tileList = new List<Tile>();
         mapdata = new MapData();
 
     }
+    #region 맵에디터의 경우
     //버튼 이벤트로 사용될 예정이라 퍼블릭으로 선언
     public void Generate_Tilemap()
     {
-        if(int.TryParse(input_Width.text,out int _width) && int.TryParse(input_Height.text, out int _height))
+        if (int.TryParse(input_Width.text, out int _width) && int.TryParse(input_Height.text, out int _height))
         {
             width = _width;
             height = _height;
@@ -44,7 +56,7 @@ public class TileMap2D : MonoBehaviour
         {
             for (int x = 0; x < width; x++)
             {
-                Vector3 position = new Vector3((-width*0.5f+0.5f)+x,(height*0.5f - 0.5f)-y,0);
+                Vector3 position = new Vector3((-width * 0.5f + 0.5f) + x, (height * 0.5f - 0.5f) - y, 0);
 
                 SpawnTile(Tile_Type.Empty, position);
 
@@ -72,7 +84,7 @@ public class TileMap2D : MonoBehaviour
     {
         for (int i = 0; i < tileList.Count; i++)
         {
-            if(tileList[i].Tiletype != Tile_Type.Player)//플레이어가 아니라면
+            if (tileList[i].Tiletype != Tile_Type.Player)//플레이어가 아니라면
             {
                 mapdata.Mapdata[i] = (int)tileList[i].Tiletype;
             }
@@ -88,4 +100,61 @@ public class TileMap2D : MonoBehaviour
         }
         return mapdata;
     }
+    #endregion
+
+
+    #region 게임의 경우
+    public void Generate_Tilemap(MapData map)
+    {
+        int width = map.Mapsize.x;
+        int height = map.Mapsize.y;
+
+        for (int y = 0; y < height; y++)
+        {
+            for (int x = 0; x < width; x++)
+            {
+                int index = y * width + x;
+                if (map.Mapdata[index].Equals((int)TileType_G.Empty))
+                {
+                    continue;
+                }
+                //생성되는 타일맵 중앙이 0 0 0 인 위치 
+                Vector3 position = new Vector3
+                    ((-width * 0.5f + 0.5f) + x, (height * 0.5f - 0.5f) - y, 0);
+
+                if(map.Mapdata[index]>(int)TileType_G.Empty && map.Mapdata[index]<(int)TileType_G.LastIndex)
+                {
+                    // 타일 만드는 메소드 추가
+                    SpawnTile((TileType_G)map.Mapdata[index], position);
+                }
+                else if(map.Mapdata[index]>=(int)Item_Type.coin)
+                {
+                    // 아이템 만드는 메소드 추가
+                    SpawnItem(position);
+                }
+
+            }
+        }
+    }
+    public void SpawnTile(TileType_G type, Vector3 position)
+    {
+        //나중에 타일타입에 따른 것들이 추가가 되면 변경되어야 할 부분
+        GameObject Clone = Instantiate(Tile_Prefabs_G, position, Quaternion.identity);
+
+        Clone.transform.SetParent(transform);
+        Clone.transform.name = "Tile";
+        Tile_G tile = Clone.GetComponent<Tile_G>();
+        tile.Setup(type);
+
+
+    }
+
+    public void SpawnItem(Vector3 position)
+    {
+        GameObject clone = Instantiate(ItemPrefabs, position, Quaternion.identity);
+        clone.transform.SetParent(transform);
+        clone.transform.name = "Item";
+    }
+
+    #endregion
 }
