@@ -11,8 +11,13 @@ public enum Item_Type
 
 public class Item : MonoBehaviour
 {
+
+    [SerializeField] private GameObject ItemEffectPrefabs;
+
+
     public void Exit()
     {
+        Instantiate(ItemEffectPrefabs, transform.position, Quaternion.identity);
         //아이템을 먹었을 때 호출할 메소드
         Destroy(gameObject);
     }

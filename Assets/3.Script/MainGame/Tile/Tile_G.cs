@@ -15,6 +15,12 @@ public enum TileType_G
     LastIndex
 }
 
+public enum collisionDirction {up=0,down}
+
+
+
+
+/*
 public class Tile_G : MonoBehaviour
 {
     [SerializeField] private Sprite[] Image;
@@ -36,5 +42,17 @@ public class Tile_G : MonoBehaviour
         renderer = GetComponent<SpriteRenderer>();
         tiletype = tile;
     }
+
+}
+*/
+
+public abstract class Tile_G:MonoBehaviour
+{
+    protected Movement_2D movement;
+    public virtual void Setup(Movement_2D movement_2D)//구현선택
+    {
+        movement = movement_2D;
+    }
+    public abstract void collsition(collisionDirction direction); // 무조건 구현
 
 }

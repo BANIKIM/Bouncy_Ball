@@ -31,7 +31,7 @@ public enum MoveType { Left = -1, Updown = 0, Right = 1 }
 
 public class Movement_2D : MonoBehaviour
 {
-    [Header("Raycast Collision")]
+    [Header("Raycast collsition")]
     [SerializeField] private LayerMask CollisionLayer;
 
     [Header("Raycast Count")]
@@ -58,6 +58,9 @@ public class Movement_2D : MonoBehaviour
     public MoveType movetype { get; private set; }
 
     //-------------------------------------------------------
+    public ColliderChecker iscollisionChecker => colliderChecker;
+    public Transform Hittransfrom { get; private set; }
+
     private void Awake()
     {
         collider2D = GetComponent<Collider2D>();
@@ -74,19 +77,19 @@ public class Movement_2D : MonoBehaviour
         {
             velocity.y = 0;
         }
-        JumpTo();
+        //JumpTo();
     }
 
 
     //점프
-    public void JumpTo() // 체크
+    public void JumpTo(float jumpForce=0) // 체크
     {
-        /*if(JumpForce != 0) 추후에 점프 발판을 위해서 쓸 예정
+        if (jumpForce != 0) //추후에 점프 발판을 위해서 쓸 예정
         {
-            velocity.y = JumpForce;
+            velocity.y = jumpForce;
             return;
-        }*/
-        if(colliderChecker.Down)
+        }
+        if (colliderChecker.Down)
         {
             velocity.y = this.JumpForce;
             
@@ -220,6 +223,7 @@ public class Movement_2D : MonoBehaviour
                 distance = hit.distance;
                 colliderChecker.Down = (direction == -1);
                 colliderChecker.Up = (direction == 1);
+                Hittransfrom = hit.transform;
             }
             Debug.DrawRay(rayposition,
                rayposition + Vector2.up * direction * distance,

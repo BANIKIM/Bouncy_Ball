@@ -10,10 +10,17 @@ public class TileMap2D : MonoBehaviour
     public bool isGame = false;
 
     [Header("Game의 경우")]
-    [SerializeField] private GameObject Tile_Prefabs_G;
+    [SerializeField] private GameObject[] Tile_Prefabs_G;
     [SerializeField] private GameObject ItemPrefabs;
 
 
+    private int MaxCoin = 0;
+    private int currentCoin = 0;
+    [SerializeField] private Stage_UI stageUI;
+    [SerializeField] private Stagecontroller stageController;
+
+    [SerializeField] private List<TileBlink> blinkTiles;
+    [SerializeField] private Movement_2D movement;
     //-----------------------------------------------------------------------------------
 
     [Header("MapEditer의 경우")]
@@ -67,6 +74,7 @@ public class TileMap2D : MonoBehaviour
         mapdata.Mapsize.y = height;
         mapdata.Mapdata = new int[tileList.Count];
 
+
     }
 
     private void SpawnTile(Tile_Type type, Vector3 position)
@@ -106,6 +114,8 @@ public class TileMap2D : MonoBehaviour
     #region 게임의 경우
     public void Generate_Tilemap(MapData map)
     {
+        blinkTiles = new List<TileBlink>();
+        
         int width = map.Mapsize.x;
         int height = map.Mapsize.y;
 
@@ -135,17 +145,34 @@ public class TileMap2D : MonoBehaviour
 
             }
         }
+        stageUI.UpdateTextCoin(currentCoin, MaxCoin);
+
+        //TileBlink blink 객체 하나하나 접근하는데 인덱스로 접근 하는것이 아닌
+        //자료구조의 객체에게 접근하는 방식
+        foreach (TileBlink blink in blinkTiles)
+        {
+            //blink 타일들한테 각각 타일 알려주는 메소드 호출
+        }
     }
+
+
+
+
     public void SpawnTile(TileType_G type, Vector3 position)
     {
         //나중에 타일타입에 따른 것들이 추가가 되면 변경되어야 할 부분
-        GameObject Clone = Instantiate(Tile_Prefabs_G, position, Quaternion.identity);
+        GameObject Clone = Instantiate(Tile_Prefabs_G[(int)type - 1], position, Quaternion.identity);
 
         Clone.transform.SetParent(transform);
         Clone.transform.name = "Tile";
         Tile_G tile = Clone.GetComponent<Tile_G>();
-        tile.Setup(type);
+        //tile.Setup(type);
 
+        tile.Setup(movement);
+        if(type.Equals(TileType_G.Blink))
+        {
+            blinkTiles.Add(Clone.GetComponent<TileBlink>());
+        }
 
     }
 
@@ -154,6 +181,21 @@ public class TileMap2D : MonoBehaviour
         GameObject clone = Instantiate(ItemPrefabs, position, Quaternion.identity);
         clone.transform.SetParent(transform);
         clone.transform.name = "Item";
+        MaxCoin++;
+    }
+
+    public void Getcoin(GameObject coin)
+    {
+        currentCoin++;
+
+        stageUI.UpdateTextCoin(currentCoin, MaxCoin);
+
+        coin.GetComponent<Item>().Exit();
+        if(currentCoin==MaxCoin)
+        {
+            stageController.GameClear();
+            
+        }
     }
 
     #endregion
